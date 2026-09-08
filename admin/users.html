@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block title %}
+User Management | StyleCart Admin
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+
+    <!-- Page Header -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+        <div>
+            <h2 class="fw-bold mb-1">User Management</h2>
+            <p class="text-muted small mb-0">View registered accounts, verify roles, and update permissions</p>
+        </div>
+        <a href="/admin" class="btn btn-outline-dark btn-sm">
+            &larr; Back to Dashboard
+        </a>
+    </div>
+
+    <!-- Quick Stat Overview Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-sm-4">
+            <div class="card border-0 shadow-sm p-3">
+                <small class="text-muted text-uppercase fw-semibold">Total Accounts</small>
+                <h3 class="fw-bold mt-1 mb-0">{{ users|length }}</h3>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="card border-0 shadow-sm p-3">
+                <small class="text-muted text-uppercase fw-semibold">Administrators</small>
+                <h3 class="fw-bold mt-1 mb-0 text-primary">
+                    {{ users|selectattr("role", "equalto", "admin")|list|length }}
+                </h3>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="card border-0 shadow-sm p-3">
+                <small class="text-muted text-uppercase fw-semibold">Standard Customers</small>
+                <h3 class="fw-bold mt-1 mb-0 text-secondary">
+                    {{ users|selectattr("role", "equalto", "user")|list|length }}
+                </h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- Users Table Card -->
+    <div class="card border-0 shadow-sm overflow-hidden">
+        <div class="card-header bg-white border-bottom py-3 px-4 d-flex justify-content-between align-items-center">
+            <h6 class="fw-bold mb-0">Registered Users Directory</h6>
+            <span class="badge bg-light text-dark border">{{ users|length }} Records</span>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light text-uppercase small text-muted">
+                    <tr>
+                        <th class="ps-4">User</th>
+                        <th>Contact</th>
+                        <th>Role</th>
+                        <th>Joined Date</th>
+                        <th class="text-center">Total Orders</th>
+                        <th class="text-end pe-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in users %}
+                    <tr>
+                        <!-- User Name & Avatar -->
+                        <td class="ps-4">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center fw-bold text-dark border" style="width: 38px; height: 38px; min-width: 38px;">
+                                    {{ u.name[0]|upper if u.name else 'U' }}
+                                </div>
+                                <div>
+                                    <span class="fw-semibold d-block text-dark">{{ u.name }}</span>
+                                    <small class="text-muted">ID: #{{ u.user_id }}</small>
+                                </div>
+                            </div>
+                        </td>
+
+                        <!-- Contact (Email & Phone) -->
+                        <td>
+                            <div class="small">
+                                <span class="d-block">{{ u.email }}</span>
+                                {% if u.phone %}
+                                    <small class="text-muted"><i class="bi bi-telephone me-1"></i>{{ u.phone }}</small>
+                                {% else %}
+                                    <small class="text-muted">No phone saved</small>
+                                {% endif %}
+                            </div>
+                        </td>
+
+                        <!-- Role Badge -->
+                        <td>
+                            {% if u.role == 'admin' %}
+                                <span class="badge bg-dark text-white px-2 py-1">
+                                    <i class="bi bi-shield-check me-1"></i>Admin
+                                </span>
+                            {% else %}
+                                <span class="badge bg-secondary text-white px-2 py-1">Customer</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Joined Date -->
+                        <td class="small text-muted">
+                            {{ u.created_at.strftime('%d %b, %Y') if u.created_at else 'N/A' }}
+                        </td>
+
+                        <!-- Total Orders Count -->
+                        <td class="text-center">
+                            <span class="badge bg-light text-dark border px-2 py-1">
+                                {{ u.order_count|default(0) }}
+                            </span>
+                        </td>
+
+                        <!-- Actions: Role Toggle -->
+                        <td class="text-end pe-4">
+                            {% if u.user_id == session.get('user_id') %}
+                                <span class="badge bg-light text-muted border">Current Session</span>
+                            {% else %}
+                                <form action="/admin/users/update-role" method="POST" class="d-inline">
+                                    <input type="hidden" name="user_id" value="{{ u.user_id }}">
+                                    {% if u.role == 'admin' %}
+                                        <input type="hidden" name="new_role" value="user">
+                                        <button type="submit" class="btn btn-outline-warning btn-sm" onclick="return confirm('Demote this admin to regular user?');">
+                                            Demote to User
+                                        </button>
+                                    {% else %}
+                                        <input type="hidden" name="new_role" value="admin">
+                                        <button type="submit" class="btn btn-outline-dark btn-sm" onclick="return confirm('Promote this user to administrator?');">
+                                            Promote to Admin
+                                        </button>
+                                    {% endif %}
+                                </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-muted">
+                            <i class="bi bi-people fs-2 d-block mb-2"></i>
+                            No users found in database.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,234 @@
+{% extends "base.html" %}
+
+{% block title %}
+Admin Dashboard | StyleCart
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="fw-bold m-0">Admin Dashboard</h1>
+        <div class="d-flex gap-2">
+            <a href="/admin/products" class="btn btn-dark btn-sm">Manage Products</a>
+            <a href="/admin/orders" class="btn btn-outline-dark btn-sm">Manage Orders</a>
+        </div>
+    </div>
+
+    <!-- 1. Stats Counter Cards -->
+    <div class="row g-4">
+        <div class="col-sm-6 col-lg-3">
+            <div class="card border-0 shadow-sm p-4">
+                <small class="text-muted text-uppercase fw-semibold">Total Users</small>
+                <h2 class="mt-2 mb-0 fw-bold">{{ total_users }}</h2>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-lg-3">
+            <div class="card border-0 shadow-sm p-4">
+                <small class="text-muted text-uppercase fw-semibold">Total Products</small>
+                <h2 class="mt-2 mb-0 fw-bold">{{ total_products }}</h2>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-lg-3">
+            <div class="card border-0 shadow-sm p-4">
+                <small class="text-muted text-uppercase fw-semibold">Total Orders</small>
+                <h2 class="mt-2 mb-0 fw-bold">{{ total_orders }}</h2>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-lg-3">
+            <div class="card border-0 shadow-sm p-4">
+                <small class="text-muted text-uppercase fw-semibold">Total Revenue</small>
+                <h2 class="mt-2 mb-0 fw-bold text-success">₹{{ revenue }}</h2>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Primary Sales Trend Line Chart -->
+    <div class="card border-0 shadow-sm p-4 mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold mb-0">Sales Analytics</h5>
+            <span class="badge bg-light text-dark border">Last 6 Months</span>
+        </div>
+        <div style="height: 320px; position: relative;">
+            <canvas id="salesChart"></canvas>
+        </div>
+    </div>
+
+    <!-- 3. Category Breakdown & Top Products Grid -->
+    <div class="row g-4 mt-1">
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm p-4 h-100">
+                <h5 class="fw-bold mb-3">Sales by Category</h5>
+                <div style="height: 260px; position: relative;" class="d-flex justify-content-center align-items-center">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm p-4 h-100">
+                <h5 class="fw-bold mb-3">Top Selling Products</h5>
+                <div style="height: 260px; position: relative;">
+                    <canvas id="topProductsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. Recent Orders Table -->
+    <div class="card border-0 shadow-sm p-4 mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold mb-0">Recent Orders</h5>
+            <a href="/admin/orders" class="text-decoration-none small text-dark fw-semibold">View All &rarr;</a>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in recent_orders %}
+                    <tr>
+                        <td class="fw-semibold">#{{ order.id }}</td>
+                        <td>{{ order.customer_name }}</td>
+                        <td>₹{{ "%.2f"|format(order.amount) }}</td>
+                        <td>
+                            {% if order.status == 'Delivered' %}
+                                <span class="badge bg-success">Delivered</span>
+                            {% elif order.status == 'Shipped' %}
+                                <span class="badge bg-info text-dark">Shipped</span>
+                            {% elif order.status == 'Cancelled' %}
+                                <span class="badge bg-danger">Cancelled</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">{{ order.status }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center py-4 text-muted">No recent orders found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 5. Quick Navigation Links -->
+    <div class="mt-4 pt-2">
+        <a href="/admin/products/add" class="btn btn-dark me-2">+ Add Product</a>
+        <a href="/admin/products" class="btn btn-outline-dark me-2">Manage Catalog</a>
+        <a href="/admin/orders" class="btn btn-outline-dark me-2">Review Orders</a>
+        <a href="/admin/users" class="btn btn-outline-dark">Manage Users</a>
+    </div>
+
+</div>
+
+<!-- Chart.js Engine -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // 1. Monthly Revenue Line Chart
+    const salesCanvas = document.getElementById('salesChart');
+    if (salesCanvas) {
+        const salesCtx = salesCanvas.getContext('2d');
+        const chartLabels = {{ chart_labels | tojson if chart_labels is defined else '["Jan", "Feb", "Mar", "Apr", "May", "Jun"]' }};
+        const chartData = {{ chart_data | tojson if chart_data is defined else '[0, 0, 0, 0, 0, 0]' }};
+
+        new Chart(salesCtx, {
+            type: 'line',
+            data: {
+                labels: chartLabels,
+                datasets: [{
+                    label: 'Revenue (₹)',
+                    data: chartData,
+                    borderColor: '#111827',
+                    backgroundColor: 'rgba(17, 24, 39, 0.06)',
+                    borderWidth: 2.5,
+                    fill: true,
+                    tension: 0.35,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#111827'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(val) { return '₹' + Number(val).toLocaleString('en-IN'); }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // 2. Fetch Category & Top Products Analytics via API
+    fetch('/admin/api/analytics')
+        .then(response => {
+            if (!response.ok) throw new Error("Could not load analytics");
+            return response.json();
+        })
+        .then(data => {
+            // Doughnut: Categories
+            const catCanvas = document.getElementById('categoryChart');
+            if (catCanvas && data.categories && data.categories.length > 0) {
+                new Chart(catCanvas.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: data.categories,
+                        datasets: [{
+                            data: data.category_sales,
+                            backgroundColor: ['#111827', '#4b5563', '#9ca3af', '#cbd5e1', '#3b82f6', '#10b981']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { position: 'bottom' } }
+                    }
+                });
+            }
+
+            // Bar: Top Products
+            const topCanvas = document.getElementById('topProductsChart');
+            if (topCanvas && data.top_product_names && data.top_product_names.length > 0) {
+                new Chart(topCanvas.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: data.top_product_names,
+                        datasets: [{
+                            label: 'Units Sold',
+                            data: data.top_product_units,
+                            backgroundColor: '#111827',
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        indexAxis: 'y',
+                        plugins: { legend: { display: false } },
+                        scales: { x: { beginAtZero: true } }
+                    }
+                });
+            }
+        })
+        .catch(err => console.log('Analytics loading notice:', err));
+});
+</script>
+{% endblock %}

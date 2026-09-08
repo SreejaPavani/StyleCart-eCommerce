@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}
+Manage Catalog | StyleCart Admin
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+        <div>
+            <h2 class="fw-bold mb-1">Product Inventory</h2>
+            <p class="text-muted small mb-0">Browse, edit, and control item stocks across categories</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="/admin/products/add" class="btn btn-dark btn-sm">+ Add New Product</a>
+            <a href="/admin" class="btn btn-outline-dark btn-sm">&larr; Dashboard</a>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light text-uppercase small text-muted">
+                    <tr>
+                        <th class="ps-4">Product</th>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th>Stock</th>
+                        <th>Rating</th>
+                        <th class="text-end pe-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in products %}
+                    <tr>
+                        <td class="ps-4">
+                            <div class="d-flex align-items-center gap-3">
+                                <img src="{{ p.image }}" alt="{{ p.name }}" style="width: 48px; height: 48px; object-fit: cover;" class="rounded border">
+                                <div>
+                                    <span class="fw-semibold d-block text-dark">{{ p.name }}</span>
+                                    <small class="text-muted">{{ p.brand }} | ID #{{ p.product_id }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ p.category }}</td>
+                        <td class="fw-bold">₹{{ "%.2f"|format(p.price) }}</td>
+                        <td>
+                            {% if p.stock == 0 %}
+                                <span class="badge bg-danger">0 Out of Stock</span>
+                            {% elif p.stock <= 5 %}
+                                <span class="badge bg-warning text-dark">{{ p.stock }} Low</span>
+                            {% else %}
+                                <span class="badge bg-light text-dark border">{{ p.stock }} In Stock</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <i class="bi bi-star-fill text-warning"></i> {{ "%.1f"|format(p.rating|default(0)|float) }}
+                        </td>
+                        <td class="text-end pe-4">
+                            <div class="d-flex justify-content-end gap-2">
+                                <a href="/admin/products/edit/{{ p.product_id }}" class="btn btn-outline-dark btn-sm">Edit</a>
+                                <form action="/admin/products/delete/{{ p.product_id }}" method="POST" onsubmit="return confirm('Delete this product permanently?');">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-muted">No products found in catalog.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block title %}
+Add New Product | StyleCart Admin
+{% endblock %}
+
+{% block content %}
+<div class="container py-5" style="max-width: 800px;">
+
+    <!-- Navigation Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">Add New Product</h2>
+            <p class="text-muted small mb-0">Create a new item in your inventory catalog</p>
+        </div>
+        <a href="/admin/products" class="btn btn-outline-dark btn-sm">
+            &larr; Back to Products
+        </a>
+    </div>
+
+    <!-- Product Form Card -->
+    <div class="card border-0 shadow-sm p-4 p-md-5">
+        <form action="/admin/products/add" method="POST">
+
+            <!-- Title & Brand -->
+            <div class="row g-3 mb-3">
+                <div class="col-md-8">
+                    <label class="form-label fw-semibold">Product Name <span class="text-danger">*</span></label>
+                    <input type="text" name="name" class="form-control" placeholder="e.g. Slim Fit Linen Shirt" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Brand <span class="text-danger">*</span></label>
+                    <input type="text" name="brand" class="form-control" placeholder="e.g. StyleCart Studio" required>
+                </div>
+            </div>
+
+            <!-- Categories -->
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Category <span class="text-danger">*</span></label>
+                    <select name="category" class="form-select" required>
+                        <option value="" disabled selected>Select Category</option>
+                        <option value="Women">Women</option>
+                        <option value="Men">Men</option>
+                        <option value="Footwear">Footwear</option>
+                        <option value="Accessories">Accessories</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Subcategory</label>
+                    <input type="text" name="subcategory" class="form-control" placeholder="e.g. Shirts, Denim, Sneakers">
+                </div>
+            </div>
+
+            <!-- Pricing & Inventory -->
+            <div class="row g-3 mb-3">
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Price (₹) <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light">₹</span>
+                        <input type="number" step="0.01" min="0" name="price" class="form-control" placeholder="1499.00" required>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Stock Quantity <span class="text-danger">*</span></label>
+                    <input type="number" min="0" name="stock" class="form-control" placeholder="50" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Color</label>
+                    <input type="text" name="color" class="form-control" placeholder="e.g. Navy Blue">
+                </div>
+            </div>
+
+            <!-- Sizes & Variant Options -->
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Available Sizes</label>
+                <input type="text" name="sizes" class="form-control" value="S,M,L,XL" placeholder="e.g. S,M,L,XL or 7,8,9,10">
+                <small class="text-muted">Separate multiple sizes with commas.</small>
+            </div>
+
+            <!-- Image Asset Link -->
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Image URL or Static Path <span class="text-danger">*</span></label>
+                <input type="text" name="image" id="imageUrlInput" class="form-control" placeholder="https://images.unsplash.com/... or /static/images/shirt.jpg" required>
+                <small class="text-muted">Direct image URL or local path from your `static/` directory.</small>
+                
+                <!-- Live Image Preview Box -->
+                <div class="mt-3 text-center p-3 border rounded bg-light" id="previewContainer" style="display: none;">
+                    <small class="text-muted d-block mb-2">Image Preview:</small>
+                    <img id="imagePreview" src="" alt="Product Preview" style="max-height: 180px; object-fit: contain;" class="rounded shadow-sm">
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div class="mb-4">
+                <label class="form-label fw-semibold">Description</label>
+                <textarea name="description" class="form-control" rows="4" placeholder="Detail the material, fit, wash care instructions, and styling tips..."></textarea>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-dark px-4 py-2">
+                    Publish Product
+                </button>
+                <a href="/admin/products" class="btn btn-outline-secondary px-4 py-2">
+                    Cancel
+                </a>
+            </div>
+
+        </form>
+    </div>
+
+</div>
+
+<!-- Live Preview Script -->
+<script>
+document.getElementById('imageUrlInput').addEventListener('input', function() {
+    const url = this.value.trim();
+    const previewContainer = document.getElementById('previewContainer');
+    const previewImage = document.getElementById('imagePreview');
+
+    if (url) {
+        previewImage.src = url;
+        previewContainer.style.display = 'block';
+    } else {
+        previewContainer.style.display = 'none';
+    }
+});
+</script>
+{% endblock %}

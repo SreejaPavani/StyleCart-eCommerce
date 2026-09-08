@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}
+Edit {{ product.name }} | StyleCart Admin
+{% endblock %}
+
+{% block content %}
+<div class="container py-5" style="max-width: 800px;">
+
+    <!-- Navigation Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">Edit Product</h2>
+            <p class="text-muted small mb-0">Modify product details, inventory, and pricing</p>
+        </div>
+        <a href="/admin/products" class="btn btn-outline-dark btn-sm">
+            &larr; Back to Catalog
+        </a>
+    </div>
+
+    <!-- Product Form Card -->
+    <div class="card border-0 shadow-sm p-4 p-md-5">
+        <form action="/admin/products/edit/{{ product.product_id }}" method="POST">
+
+            <!-- Title & Brand -->
+            <div class="row g-3 mb-3">
+                <div class="col-md-8">
+                    <label class="form-label fw-semibold">Product Name <span class="text-danger">*</span></label>
+                    <input type="text" name="name" class="form-control" value="{{ product.name }}" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Brand <span class="text-danger">*</span></label>
+                    <input type="text" name="brand" class="form-control" value="{{ product.brand }}" required>
+                </div>
+            </div>
+
+            <!-- Categories -->
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Category <span class="text-danger">*</span></label>
+                    <select name="category" class="form-select" required>
+                        <option value="Women" {% if product.category == 'Women' %}selected{% endif %}>Women</option>
+                        <option value="Men" {% if product.category == 'Men' %}selected{% endif %}>Men</option>
+                        <option value="Footwear" {% if product.category == 'Footwear' %}selected{% endif %}>Footwear</option>
+                        <option value="Accessories" {% if product.category == 'Accessories' %}selected{% endif %}>Accessories</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Subcategory</label>
+                    <input type="text" name="subcategory" class="form-control" value="{{ product.subcategory if product.subcategory else '' }}" placeholder="e.g. Shirts, Denim, Sneakers">
+                </div>
+            </div>
+
+            <!-- Pricing & Inventory -->
+            <div class="row g-3 mb-3">
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Price (₹) <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light">₹</span>
+                        <input type="number" step="0.01" min="0" name="price" class="form-control" value="{{ product.price }}" required>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Stock Quantity <span class="text-danger">*</span></label>
+                    <input type="number" min="0" name="stock" class="form-control" value="{{ product.stock }}" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Color</label>
+                    <input type="text" name="color" class="form-control" value="{{ product.color if product.color else '' }}" placeholder="e.g. Navy Blue">
+                </div>
+            </div>
+
+            <!-- Sizes & Variant Options -->
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Available Sizes</label>
+                <input type="text" name="sizes" class="form-control" value="{{ product.sizes if product.sizes else 'S,M,L,XL' }}" placeholder="e.g. S,M,L,XL or 7,8,9,10">
+                <small class="text-muted">Separate multiple sizes with commas.</small>
+            </div>
+
+            <!-- Image Asset Link & Live Preview -->
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Image URL or Static Path <span class="text-danger">*</span></label>
+                <input type="text" name="image" id="imageUrlInput" class="form-control" value="{{ product.image }}" required>
+                <small class="text-muted">Direct image URL or local path from your <code>static/</code> directory.</small>
+                
+                <div class="mt-3 p-3 border rounded bg-light text-center" id="previewContainer">
+                    <small class="text-muted d-block mb-2">Current / Updated Preview:</small>
+                    <img id="imagePreview" src="{{ product.image }}" alt="{{ product.name }}" style="max-height: 180px; object-fit: contain;" class="rounded shadow-sm">
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div class="mb-4">
+                <label class="form-label fw-semibold">Description</label>
+                <textarea name="description" class="form-control" rows="4" placeholder="Product details, material, care instructions...">{{ product.description if product.description else '' }}</textarea>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-dark px-4 py-2">
+                    Save Changes
+                </button>
+                <a href="/admin/products" class="btn btn-outline-secondary px-4 py-2">
+                    Cancel
+                </a>
+            </div>
+
+        </form>
+    </div>
+
+</div>
+
+<!-- Realtime Image Preview Script -->
+<script>
+document.getElementById('imageUrlInput').addEventListener('input', function() {
+    const url = this.value.trim();
+    const previewContainer = document.getElementById('previewContainer');
+    const previewImage = document.getElementById('imagePreview');
+
+    if (url) {
+        previewImage.src = url;
+        previewContainer.style.display = 'block';
+    } else {
+        previewContainer.style.display = 'none';
+    }
+});
+</script>
+{% endblock %}
