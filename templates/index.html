@@ -1,151 +1,72 @@
 {% extends "base.html" %}
-
-{% block title %}
-StyleCart | Fashion Store
-{% endblock %}
+{% block title %}StyleCart | Home{% endblock %}
 
 {% block content %}
-
-<!-- Hero Section with new_collection.jpg banner -->
-<section class="hero" style="min-height: 550px; background: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), url('/static/images/banners/new_collection.jpg') center/cover no-repeat; display: flex; align-items: center;">
-    <div class="hero-content">
-        <p class="hero-small">
-            NEW SEASON COLLECTION
-        </p>
-        <h1>
-            FIND YOUR<br>
-            PERFECT STYLE
-        </h1>
-        <p>
-            Discover fashion designed for every version of you.
-        </p>
-        <a href="/products" class="btn shop-btn">
-            SHOP NOW
-        </a>
-    </div>
-</section>
-
-<!-- Category Banners Section -->
-<section class="container py-5">
-    <div class="section-heading">
-        <p>EXPLORE</p>
-        <h2>Shop By Category</h2>
-    </div>
-
-    <div class="row g-4">
-        <!-- Women Category Card -->
-        <div class="col-md-3">
-            <a href="/products?category=Women" class="category-card" 
-               style="background: linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url('/static/images/banners/fashion_women.jpg') center/cover no-repeat; min-height: 220px; display: flex; align-items: flex-end; padding: 20px; text-decoration: none; border-radius: 8px;">
-                <div class="text-white">
-                    <h3 class="fw-bold mb-1">Women</h3>
-                    <span class="small">Explore Collection →</span>
-                </div>
-            </a>
-        </div>
-
-        <!-- Men Category Card -->
-        <div class="col-md-3">
-            <a href="/products?category=Men" class="category-card" 
-               style="background: linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url('/static/images/banners/fashion_men.jpg') center/cover no-repeat; min-height: 220px; display: flex; align-items: flex-end; padding: 20px; text-decoration: none; border-radius: 8px;">
-                <div class="text-white">
-                    <h3 class="fw-bold mb-1">Men</h3>
-                    <span class="small">Explore Collection →</span>
-                </div>
-            </a>
-        </div>
-
-        <!-- Footwear Category Card -->
-        <div class="col-md-3">
-            <a href="/products?category=Footwear" class="category-card" 
-               style="background: linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url('/static/images/products/beige_sandals.jpg') center/cover no-repeat; min-height: 220px; display: flex; align-items: flex-end; padding: 20px; text-decoration: none; border-radius: 8px;">
-                <div class="text-white">
-                    <h3 class="fw-bold mb-1">Footwear</h3>
-                    <span class="small">Explore Collection →</span>
-                </div>
-            </a>
-        </div>
-
-        <!-- Accessories Category Card -->
-        <div class="col-md-3">
-            <a href="/products?category=Accessories" class="category-card" 
-               style="background: linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url('/static/images/banners/accessories.jpg') center/cover no-repeat; min-height: 220px; display: flex; align-items: flex-end; padding: 20px; text-decoration: none; border-radius: 8px;">
-                <div class="text-white">
-                    <h3 class="fw-bold mb-1">Accessories</h3>
-                    <span class="small">Explore Collection →</span>
-                </div>
-            </a>
+<div class="container my-5">
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-8">
+            <h2 class="fw-bold">Featured Products</h2>
+            <p class="text-muted">Handpicked fashion essentials curated just for you.</p>
         </div>
     </div>
-</section>
 
-<!-- Product Cards Section -->
-<section class="container py-5">
-    <div class="section-heading">
-        <p>JUST IN</p>
-        <h2>New Arrivals</h2>
-    </div>
-
-    <div class="row g-4">
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
         {% for product in products %}
-        <div class="col-6 col-md-3">
-            <div class="product-card">
-                <div class="product-image">
-                    <img src="{{ product.image }}" 
-                         alt="{{ product.name }}" 
-                         loading="lazy"
-                         onerror="this.onerror=null; this.src='https://placehold.co/400x500?text=Product+Image';">
-
-                    {% if product.discount > 0 %}
-                    <span class="discount-badge">
-                        {{ product.discount|int }}% OFF
-                    </span>
+            <div class="col">
+                <div class="card h-100 shadow-sm border-0 position-relative">
+                    {% if product.discount and product.discount > 0 %}
+                        <span class="badge bg-dark position-absolute top-0 start-0 m-2 px-2 py-1">
+                            {{ product.discount | int }}% OFF
+                        </span>
                     {% endif %}
-                </div>
 
-                <div class="product-info">
-                    <small>{{ product.brand }}</small>
-                    <h5>{{ product.name }}</h5>
-                    <div>
-                        <span class="price">
-                            ₹{{ product.price }}
-                        </span>
+                    <div style="height: 280px; overflow: hidden; background-color: #f8f9fa;">
+                        <img 
+                            src="{% if product.image and (product.image.startswith('http://') or product.image.startswith('https://')) %}{{ product.image }}{% elif product.image %}{{ url_for('static', filename='images/' + product.image) }}{% else %}https://placehold.co/400x500?text=No+Image{% endif %}" 
+                            alt="{{ product.name }}" 
+                            class="card-img-top w-100 h-100" 
+                            style="object-fit: cover; object-position: center;"
+                            loading="lazy"
+                            onerror="this.onerror=null; this.src='https://placehold.co/400x500?text=Image+Not+Found';"
+                        >
+                    </div>
 
-                        {% if product.discount > 0 %}
-                        <span class="old-price">
-                            ₹{{ "%.0f"|format(product.price / (1 - product.discount/100)) }}
-                        </span>
+                    <div class="card-body d-flex flex-column">
+                        {% if product.brand %}
+                            <span class="text-uppercase text-muted small fw-semibold mb-1">{{ product.brand }}</span>
                         {% endif %}
-                    </div>
 
-                    <div class="rating">
-                        ⭐ {{ product.rating }}
-                    </div>
+                        <h6 class="card-title fw-bold mb-2 text-truncate" title="{{ product.name }}">
+                            {{ product.name }}
+                        </h6>
 
-                    <a href="/product/{{ product.product_id }}" class="view-product">
-                        View Product →
-                    </a>
+                        <div class="d-flex align-items-baseline gap-2 mb-2">
+                            <span class="fw-bold fs-6">₹{{ "%.2f"|format(product.price) }}</span>
+                            {% if product.discount and product.discount > 0 %}
+                                {% set original_price = (product.price / (1 - (product.discount / 100))) %}
+                                <span class="text-muted text-decoration-line-through small">₹{{ "%.0f"|format(original_price) }}</span>
+                            {% endif %}
+                        </div>
+
+                        {% if product.rating %}
+                            <div class="small text-warning mb-3">
+                                ★ <span class="text-dark fw-medium">{{ product.rating }}</span>
+                            </div>
+                        {% endif %}
+
+                        <div class="mt-auto">
+                            <a href="/product/{{ product.product_id }}" class="btn btn-sm btn-outline-dark w-100">
+                                View Product &rarr;
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
+        {% else %}
+            <div class="col-12 text-center py-5">
+                <p class="text-muted fs-5">No products available at the moment.</p>
+            </div>
         {% endfor %}
     </div>
-</section>
-
-<!-- Newsletter Section -->
-<section class="newsletter">
-    <div class="container text-center">
-        <p>STYLE NEWS</p>
-        <h2>Stay in the Style Loop</h2>
-        <p>
-            Get updates about new collections, exclusive offers, and fashion trends.
-        </p>
-
-        <div class="newsletter-form">
-            <input type="email" placeholder="Enter your email">
-            <button>SUBSCRIBE</button>
-        </div>
-    </div>
-</section>
-
+</div>
 {% endblock %}
