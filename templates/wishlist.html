@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}
+My Wishlist | StyleCart
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">Saved Wishlist</h2>
+            <p class="text-muted small mb-0">Items you've bookmarked for later</p>
+        </div>
+        <a href="/products" class="btn btn-outline-dark btn-sm">
+            Continue Shopping
+        </a>
+    </div>
+
+    {% if products %}
+        <div class="row g-4">
+            {% for product in products %}
+            <div class="col-6 col-md-4 col-lg-3">
+                <div class="card h-100 border-0 shadow-sm product-card position-relative">
+
+                    <!-- Remove from Wishlist Button -->
+                    <a href="/wishlist/remove/{{ product.product_id }}" 
+                       class="btn btn-light btn-sm rounded-circle shadow-sm position-absolute top-0 end-0 m-2 text-danger" 
+                       style="z-index: 3;" 
+                       title="Remove item">
+                        <i class="bi bi-trash3"></i>
+                    </a>
+
+                    <!-- Product Image Area -->
+                    <div class="product-image">
+                        {% if product.stock == 0 %}
+                            <span class="badge bg-danger stock-badge">Out of Stock</span>
+                        {% elif product.stock <= 5 %}
+                            <span class="badge bg-warning text-dark stock-badge">Only {{ product.stock }} Left</span>
+                        {% endif %}
+
+                        <a href="/product/{{ product.product_id }}">
+                            <img src="{{ product.image }}" alt="{{ product.name }}" loading="lazy">
+                        </a>
+                    </div>
+
+                    <!-- Product Details -->
+                    <div class="product-info d-flex flex-column flex-grow-1">
+                        <small class="text-muted text-uppercase">{{ product.brand }}</small>
+                        <h6 class="text-truncate my-1" title="{{ product.name }}">
+                            <a href="/product/{{ product.product_id }}" class="text-dark text-decoration-none fw-semibold">
+                                {{ product.name }}
+                            </a>
+                        </h6>
+
+                        <!-- Price -->
+                        <div class="my-2">
+                            <span class="price">₹{{ "%.2f"|format(product.price) }}</span>
+                        </div>
+
+                        <!-- Action Button: Move to Cart -->
+                        <div class="mt-auto pt-2">
+                            {% if product.stock > 0 %}
+                                <form action="/cart/add/{{ product.product_id }}" method="POST" class="m-0">
+                                    <input type="hidden" name="quantity" value="1">
+                                    <input type="hidden" name="size" value="{{ product.sizes.split(',')[0] if product.sizes else 'M' }}">
+                                    <button type="submit" class="btn btn-dark btn-sm w-100 py-2 fw-semibold">
+                                        <i class="bi bi-bag-plus me-1"></i>Move to Cart
+                                    </button>
+                                </form>
+                            {% else %}
+                                <button class="btn btn-light btn-sm w-100 py-2 text-muted" disabled>
+                                    Out of Stock
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <!-- Empty State -->
+        <div class="card border-0 shadow-sm py-5 text-center my-4">
+            <div class="py-5">
+                <i class="bi bi-heart text-muted" style="font-size: 3.5rem;"></i>
+                <h4 class="fw-bold mt-3 mb-1">Your wishlist is empty</h4>
+                <p class="text-muted small mb-4">Explore our catalog and bookmark your favorite looks.</p>
+                <a href="/products" class="btn btn-dark px-4 py-2">
+                    Discover Products
+                </a>
+            </div>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

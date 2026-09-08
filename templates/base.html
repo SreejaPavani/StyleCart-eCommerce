@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}StyleCart{% endblock %}</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+<!-- Hidden Search Overlay -->
+<div id="searchOverlay" class="search-overlay align-items-center justify-content-center" style="display: none !important;">
+    <div class="container position-relative" style="max-width: 650px;">
+        <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 mt-n4" onclick="toggleSearch()"></button>
+        <form action="/products" method="GET">
+            <div class="input-group input-group-lg shadow">
+                <span class="input-group-text bg-white border-0 ps-4"><i class="bi bi-search text-muted"></i></span>
+                <input type="text" name="search" class="form-control border-0 py-3 ps-2" placeholder="Search clothes, shoes, accessories..." autocomplete="off">
+                <button class="btn btn-dark px-4" type="submit">Search</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold logo" href="{{ url_for('home') }}">STYLECART</a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mx-auto">
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('home') }}">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="/products?category=Women">Women</a></li>
+                <li class="nav-item"><a class="nav-link" href="/products?category=Men">Men</a></li>
+                <li class="nav-item"><a class="nav-link" href="/products?category=Footwear">Footwear</a></li>
+                <li class="nav-item"><a class="nav-link" href="/products?category=Accessories">Accessories</a></li>
+                <li class="nav-item"><a class="nav-link text-danger fw-semibold" href="/products?sort=sale">Sale</a></li>
+            </ul>
+
+            <div class="d-flex align-items-center gap-3">
+                <button type="button" class="btn btn-link text-dark p-0" onclick="toggleSearch()">
+                    <i class="bi bi-search fs-5"></i>
+                </button>
+                <a href="/wishlist" class="text-dark"><i class="bi bi-heart fs-5"></i></a>
+                <a href="/cart" class="text-dark"><i class="bi bi-bag fs-5"></i></a>
+
+                {% if session.get('user_id') %}
+                    <a href="/profile" class="text-dark"><i class="bi bi-person fs-5"></i></a>
+                    <a href="/logout" class="text-dark small text-decoration-none">Logout</a>
+                {% else %}
+                    <a href="/login" class="text-dark"><i class="bi bi-person fs-5"></i></a>
+                {% endif %}
+
+                {% if session.get('role') == 'admin' %}
+                    <a href="/admin" class="badge bg-dark text-white text-decoration-none py-2 px-3">Admin</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="container mt-3">
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category if category in ['success', 'danger', 'warning', 'info'] else 'info' }} alert-dismissible fade show">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+
+<main class="flex-grow-1">
+    {% block content %}{% endblock %}
+</main>
+
+<footer class="footer bg-white border-top mt-5">
+    <div class="container py-5">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <h4 class="fw-bold">STYLECART</h4>
+                <p class="text-muted">Discover your style. Shop the latest fashion trends.</p>
+            </div>
+            <div class="col-6 col-md-2">
+                <h6 class="fw-bold mb-3">SHOP</h6>
+                <ul class="list-unstyled text-muted small lh-lg">
+                    <li><a href="/products?category=Women">Women</a></li>
+                    <li><a href="/products?category=Men">Men</a></li>
+                    <li><a href="/products?category=Footwear">Footwear</a></li>
+                </ul>
+            </div>
+            <div class="col-6 col-md-3">
+                <h6 class="fw-bold mb-3">HELP</h6>
+                <ul class="list-unstyled text-muted small lh-lg">
+                    <li><a href="#">Contact Us</a></li>
+                    <li><a href="#">Shipping Policy</a></li>
+                    <li><a href="#">Returns</a></li>
+                </ul>
+            </div>
+            <div class="col-md-3">
+                <h6 class="fw-bold mb-3">FOLLOW US</h6>
+                <div class="d-flex gap-3 fs-5">
+                    <a href="#"><i class="bi bi-instagram"></i></a>
+                    <a href="#"><i class="bi bi-facebook"></i></a>
+                    <a href="#"><i class="bi bi-twitter-x"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+function toggleSearch() {
+    const overlay = document.getElementById('searchOverlay');
+    if (!overlay) return;
+
+    if (overlay.style.getPropertyValue('display') === 'none' || getComputedStyle(overlay).display === 'none') {
+        overlay.style.setProperty('display', 'flex', 'important');
+        const input = overlay.querySelector('input[name="search"]');
+        if (input) input.focus();
+    } else {
+        overlay.style.setProperty('display', 'none', 'important');
+    }
+}
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        const overlay = document.getElementById('searchOverlay');
+        if (overlay && overlay.style.display === 'flex') {
+            overlay.style.setProperty('display', 'none', 'important');
+        }
+    }
+});
+</script>
+
+{% block scripts %}{% endblock %}
+</body>
+</html>

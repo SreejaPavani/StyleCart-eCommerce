@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}
+Products | StyleCart
+{% endblock %}
+
+{% block content %}
+
+<section class="container py-4">
+    <!-- Breadcrumbs & Heading -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h2 class="fw-bold mb-0">
+                {% if category %}
+                    {{ category }} Collection
+                {% elif search %}
+                    Search results for "{{ search }}"
+                {% else %}
+                    All Collections
+                {% endif %}
+            </h2>
+            <small class="text-muted">{{ products|length }} items available</small>
+        </div>
+
+        <!-- Sort Filter Controls -->
+        <form method="GET" action="/products" class="d-flex align-items-center gap-2">
+            {% if category %}
+                <input type="hidden" name="category" value="{{ category }}">
+            {% endif %}
+            {% if search %}
+                <input type="hidden" name="search" value="{{ search }}">
+            {% endif %}
+
+            <label for="sort" class="small fw-semibold text-muted text-nowrap">Sort By:</label>
+            <select name="sort" id="sort" class="form-select form-select-sm" onchange="this.form.submit()">
+                <option value="" {% if not sort %}selected{% endif %}>Latest</option>
+                <option value="low" {% if sort == 'low' %}selected{% endif %}>Price: Low to High</option>
+                <option value="high" {% if sort == 'high' %}selected{% endif %}>Price: High to Low</option>
+                <option value="rating" {% if sort == 'rating' %}selected{% endif %}>Highest Rated</option>
+            </select>
+        </form>
+    </div>
+
+    <!-- Product Grid -->
+    {% if products %}
+    <div class="row g-4">
+        {% for product in products %}
+        <div class="col-6 col-md-4 col-lg-3">
+            <div class="product-card h-100 d-flex flex-column border rounded overflow-hidden shadow-sm bg-white">
+                <!-- Image Container -->
+                <div class="product-image position-relative overflow-hidden" style="height: 320px; background-color: #f8f9fa;">
+                    <img src="{{ product.image }}" 
+                         alt="{{ product.name }}" 
+                         class="w-100 h-100 object-fit-cover"
+                         loading="lazy"
+                         onerror="this.onerror=null; this.src='https://placehold.co/400x500?text=StyleCart';">
+
+                    {% if product.discount > 0 %}
+                    <span class="discount-badge position-absolute top-0 start-0 m-2 badge bg-danger text-white">
+                        {{ product.discount|int }}% OFF
+                    </span>
+                    {% endif %}
+                </div>
+
+                <!-- Product Details -->
+                <div class="product-info p-3 d-flex flex-column flex-grow-1">
+                    <small class="text-muted text-uppercase fw-semibold" style="font-size: 0.75rem;">
+                        {{ product.brand }}
+                    </small>
+
+                    <h5 class="fw-bold my-1 text-truncate" title="{{ product.name }}">
+                        {{ product.name }}
+                    </h5>
+
+                    <div class="d-flex align-items-baseline gap-2 mb-2">
+                        <span class="price fw-bold text-dark">
+                            ₹{{ product.price }}
+                        </span>
+
+                        {% if product.discount > 0 %}
+                        <span class="old-price text-muted text-decoration-line-through small">
+                            ₹{{ "%.0f"|format(product.price / (1 - product.discount/100)) }}
+                        </span>
+                        {% endif %}
+                    </div>
+
+                    <div class="rating small text-warning mb-3">
+                        ★ {{ product.rating }}
+                    </div>
+
+                    <a href="/product/{{ product.product_id }}" class="btn btn-outline-dark btn-sm mt-auto w-100">
+                        View Product →
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <!-- Empty State -->
+    <div class="text-center py-5">
+        <h4 class="fw-bold text-muted">No products found</h4>
+        <p class="text-muted">Try choosing another category or adjusting your search filter.</p>
+        <a href="/products" class="btn btn-dark btn-sm mt-2">View All Products</a>
+    </div>
+    {% endif %}
+</section>
+
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}
+Create Account | StyleCart
+{% endblock %}
+
+
+{% block content %}
+
+<div class="container py-5">
+
+    <div class="row justify-content-center">
+
+        <div class="col-md-5">
+
+            <h2 class="text-center mb-4">
+                Create Account
+            </h2>
+
+            <form method="POST">
+
+                <input
+                type="text"
+                name="name"
+                class="form-control mb-3"
+                placeholder="Full Name"
+                required>
+
+
+                <input
+                type="email"
+                name="email"
+                class="form-control mb-3"
+                placeholder="Email"
+                required>
+
+
+                <input
+                type="password"
+                name="password"
+                class="form-control mb-3"
+                placeholder="Password"
+                required>
+
+
+                <button
+                class="btn btn-dark w-100">
+
+                    CREATE ACCOUNT
+
+                </button>
+
+            </form>
+
+
+            <p class="text-center mt-3">
+
+                Already have an account?
+
+                <a href="/login">
+                    Login
+                </a>
+
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

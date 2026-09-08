@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block title %}
+StyleCart | Fashion Store
+{% endblock %}
+
+{% block content %}
+
+<!-- Hero Section with new_collection.jpg banner -->
+<section class="hero" style="min-height: 550px; background: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), url('/static/images/banners/new_collection.jpg') center/cover no-repeat; display: flex; align-items: center;">
+    <div class="hero-content">
+        <p class="hero-small">
+            NEW SEASON COLLECTION
+        </p>
+        <h1>
+            FIND YOUR<br>
+            PERFECT STYLE
+        </h1>
+        <p>
+            Discover fashion designed for every version of you.
+        </p>
+        <a href="/products" class="btn shop-btn">
+            SHOP NOW
+        </a>
+    </div>
+</section>
+
+<!-- Category Banners Section -->
+<section class="container py-5">
+    <div class="section-heading">
+        <p>EXPLORE</p>
+        <h2>Shop By Category</h2>
+    </div>
+
+    <div class="row g-4">
+        <!-- Women Category Card -->
+        <div class="col-md-3">
+            <a href="/products?category=Women" class="category-card" 
+               style="background: linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url('/static/images/banners/fashion_women.jpg') center/cover no-repeat; min-height: 220px; display: flex; align-items: flex-end; padding: 20px; text-decoration: none; border-radius: 8px;">
+                <div class="text-white">
+                    <h3 class="fw-bold mb-1">Women</h3>
+                    <span class="small">Explore Collection →</span>
+                </div>
+            </a>
+        </div>
+
+        <!-- Men Category Card -->
+        <div class="col-md-3">
+            <a href="/products?category=Men" class="category-card" 
+               style="background: linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url('/static/images/banners/fashion_men.jpg') center/cover no-repeat; min-height: 220px; display: flex; align-items: flex-end; padding: 20px; text-decoration: none; border-radius: 8px;">
+                <div class="text-white">
+                    <h3 class="fw-bold mb-1">Men</h3>
+                    <span class="small">Explore Collection →</span>
+                </div>
+            </a>
+        </div>
+
+        <!-- Footwear Category Card -->
+        <div class="col-md-3">
+            <a href="/products?category=Footwear" class="category-card" 
+               style="background: linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url('/static/images/products/beige_sandals.jpg') center/cover no-repeat; min-height: 220px; display: flex; align-items: flex-end; padding: 20px; text-decoration: none; border-radius: 8px;">
+                <div class="text-white">
+                    <h3 class="fw-bold mb-1">Footwear</h3>
+                    <span class="small">Explore Collection →</span>
+                </div>
+            </a>
+        </div>
+
+        <!-- Accessories Category Card -->
+        <div class="col-md-3">
+            <a href="/products?category=Accessories" class="category-card" 
+               style="background: linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url('/static/images/banners/accessories.jpg') center/cover no-repeat; min-height: 220px; display: flex; align-items: flex-end; padding: 20px; text-decoration: none; border-radius: 8px;">
+                <div class="text-white">
+                    <h3 class="fw-bold mb-1">Accessories</h3>
+                    <span class="small">Explore Collection →</span>
+                </div>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Product Cards Section -->
+<section class="container py-5">
+    <div class="section-heading">
+        <p>JUST IN</p>
+        <h2>New Arrivals</h2>
+    </div>
+
+    <div class="row g-4">
+        {% for product in products %}
+        <div class="col-6 col-md-3">
+            <div class="product-card">
+                <div class="product-image">
+                    <img src="{{ product.image }}" 
+                         alt="{{ product.name }}" 
+                         loading="lazy"
+                         onerror="this.onerror=null; this.src='https://placehold.co/400x500?text=Product+Image';">
+
+                    {% if product.discount > 0 %}
+                    <span class="discount-badge">
+                        {{ product.discount|int }}% OFF
+                    </span>
+                    {% endif %}
+                </div>
+
+                <div class="product-info">
+                    <small>{{ product.brand }}</small>
+                    <h5>{{ product.name }}</h5>
+                    <div>
+                        <span class="price">
+                            ₹{{ product.price }}
+                        </span>
+
+                        {% if product.discount > 0 %}
+                        <span class="old-price">
+                            ₹{{ "%.0f"|format(product.price / (1 - product.discount/100)) }}
+                        </span>
+                        {% endif %}
+                    </div>
+
+                    <div class="rating">
+                        ⭐ {{ product.rating }}
+                    </div>
+
+                    <a href="/product/{{ product.product_id }}" class="view-product">
+                        View Product →
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Newsletter Section -->
+<section class="newsletter">
+    <div class="container text-center">
+        <p>STYLE NEWS</p>
+        <h2>Stay in the Style Loop</h2>
+        <p>
+            Get updates about new collections, exclusive offers, and fashion trends.
+        </p>
+
+        <div class="newsletter-form">
+            <input type="email" placeholder="Enter your email">
+            <button>SUBSCRIBE</button>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}
+My Orders | StyleCart
+{% endblock %}
+
+{% block content %}
+<div class="container py-5" style="max-width: 950px;">
+
+    <!-- Page Title -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">My Orders</h2>
+            <p class="text-muted small mb-0">Track and manage your recent purchases</p>
+        </div>
+        <a href="/products" class="btn btn-outline-dark btn-sm">
+            Continue Shopping
+        </a>
+    </div>
+
+    {% if orders %}
+        <div class="d-flex flex-column gap-4">
+            {% for order in orders %}
+            <div class="card border-0 shadow-sm overflow-hidden">
+                <!-- Order Header -->
+                <div class="card-header bg-white border-bottom py-3 px-4 d-flex flex-wrap justify-content-between align-items-center gap-2">
+                    <div class="d-flex flex-wrap gap-4 align-items-center">
+                        <div>
+                            <small class="text-muted text-uppercase d-block fw-semibold" style="font-size: 11px;">Order Placed</small>
+                            <span class="small fw-semibold">{{ order.order_date.strftime('%d %b, %Y') if order.order_date else 'Recent' }}</span>
+                        </div>
+                        <div>
+                            <small class="text-muted text-uppercase d-block fw-semibold" style="font-size: 11px;">Total Amount</small>
+                            <span class="small fw-bold text-dark">₹{{ "%.2f"|format(order.total_amount) }}</span>
+                        </div>
+                        <div>
+                            <small class="text-muted text-uppercase d-block fw-semibold" style="font-size: 11px;">Ship To</small>
+                            <span class="small text-truncate d-inline-block" style="max-width: 200px;" title="{{ order.address }}">{{ order.address }}</span>
+                        </div>
+                    </div>
+
+                    <div class="text-end">
+                        <small class="text-muted d-block" style="font-size: 11px;">Order #{{ order.order_id }}</small>
+                        <!-- Status Badge -->
+                        {% if order.order_status == 'Delivered' %}
+                            <span class="badge bg-success">Delivered</span>
+                        {% elif order.order_status == 'Shipped' %}
+                            <span class="badge bg-info text-dark">Shipped</span>
+                        {% elif order.order_status == 'Cancelled' %}
+                            <span class="badge bg-danger">Cancelled</span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark">{{ order.order_status }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Order Body & Tracking Details -->
+                <div class="card-body p-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <i class="bi bi-truck text-muted"></i>
+                                <span class="fw-semibold small">
+                                    {% if order.order_status == 'Delivered' %}
+                                        Package was delivered
+                                    {% elif order.order_status == 'Shipped' %}
+                                        Your order is on the way
+                                    {% else %}
+                                        Preparing your order
+                                    {% endif %}
+                                </span>
+                            </div>
+
+                            {% if order.tracking_number %}
+                            <div class="p-2 px-3 rounded bg-light border d-inline-block mb-3">
+                                <small class="text-muted">Tracking ID:</small>
+                                <span class="fw-bold font-monospace small ms-1">{{ order.tracking_number }}</span>
+                            </div>
+                            {% endif %}
+
+                            <p class="text-muted small mb-0">
+                                <strong>Payment Method:</strong> {{ order.payment_method }}
+                                {% if order.coupon_code %}
+                                    <span class="ms-3 badge bg-light text-dark border">
+                                        <i class="bi bi-tag-fill me-1 text-success"></i> Coupon: {{ order.coupon_code }} (-₹{{ "%.2f"|format(order.discount_amount) }})
+                                    </span>
+                                {% endif %}
+                            </p>
+                        </div>
+
+                        <!-- Action Controls -->
+                        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                            <a href="/order-success/{{ order.order_id }}" class="btn btn-dark btn-sm px-3">
+                                View Receipt
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <!-- Empty State -->
+        <div class="card border-0 shadow-sm py-5 text-center">
+            <div class="py-4">
+                <i class="bi bi-bag-x text-muted" style="font-size: 3.5rem;"></i>
+                <h4 class="fw-bold mt-3 mb-1">No Orders Yet</h4>
+                <p class="text-muted small mb-4">You haven't placed any orders with StyleCart so far.</p>
+                <a href="/products" class="btn btn-dark px-4 py-2">
+                    Start Shopping
+                </a>
+            </div>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

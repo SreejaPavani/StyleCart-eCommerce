@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}
+Shopping Bag | StyleCart
+{% endblock %}
+
+
+{% block content %}
+
+<div class="container py-5">
+
+    <h1>
+        Shopping Bag
+    </h1>
+
+    {% if cart_items %}
+
+        {% for item in cart_items %}
+
+        <div class="row align-items-center
+                    border-bottom py-4">
+
+            <div class="col-md-2">
+
+                <img
+                src="{{ url_for(
+                'static',
+                filename='images/products/' + item.image
+                ) }}"
+                class="img-fluid">
+
+            </div>
+
+
+            <div class="col-md-4">
+
+                <h5>
+                    {{ item.name }}
+                </h5>
+
+                <p>
+                    Size: {{ item.size }}
+                </p>
+
+            </div>
+
+
+            <div class="col-md-2">
+
+                ₹{{ item.price }}
+
+            </div>
+
+
+            <div class="col-md-2">
+
+                Quantity:
+                {{ item.quantity }}
+
+            </div>
+
+
+            <div class="col-md-2">
+
+                <a
+                href="/cart/remove/{{ item.cart_id }}"
+                class="btn btn-outline-dark">
+
+                    Remove
+
+                </a>
+
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+
+        <div class="text-end mt-4">
+
+            <h3>
+                Total: ₹{{ total }}
+            </h3>
+
+            <a
+            href="/checkout"
+            class="btn btn-dark">
+
+                CHECKOUT
+
+            </a>
+
+        </div>
+
+    {% else %}
+
+        <div class="text-center py-5">
+
+            <h3>
+                Your bag is empty.
+            </h3>
+
+            <a
+            href="/products"
+            class="btn btn-dark mt-3">
+
+                START SHOPPING
+
+            </a>
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}
+Checkout | StyleCart
+{% endblock %}
+
+
+{% block content %}
+
+<div class="container py-5">
+
+    <h1 class="mb-5">
+        Checkout
+    </h1>
+
+
+    <div class="row">
+
+        <div class="col-md-7">
+
+            <form method="POST">
+
+                <h4>
+                    Delivery Address
+                </h4>
+
+                <textarea
+                name="address"
+                class="form-control mb-4"
+                rows="5"
+                placeholder="Enter your complete address"
+                required></textarea>
+
+
+                <h4>
+                    Payment Method
+                </h4>
+
+                <select
+                name="payment"
+                class="form-select mb-4">
+
+                    <option>
+                        Cash on Delivery
+                    </option>
+
+                    <option>
+                        UPI
+                    </option>
+
+                    <option>
+                        Credit/Debit Card
+                    </option>
+
+                </select>
+
+
+                <button
+                class="btn btn-dark btn-lg">
+
+                    PLACE ORDER
+
+                </button>
+
+            </form>
+
+        </div>
+
+
+        <div class="col-md-5">
+
+            <div class="card p-4">
+
+                <h4>
+                    Order Summary
+                </h4>
+
+                <hr>
+
+                {% for item in cart_items %}
+
+                <p>
+                    {{ item.name }}
+                    × {{ item.quantity }}
+
+                    <span class="float-end">
+                        ₹{{ item.price *
+                        item.quantity }}
+                    </span>
+                </p>
+
+                {% endfor %}
+
+                <hr>
+
+                <h4>
+                    Total
+
+                    <span class="float-end">
+                        ₹{{ total }}
+                    </span>
+                </h4>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
