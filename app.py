@@ -35,13 +35,13 @@ def serve_image(filename):
     return send_from_directory(image_dir, filename)
 
 
-# Home Page
+# Home Page - Fetches all 16 products
 @app.route("/")
 def home():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    cursor.execute("SELECT * FROM products ORDER BY rating DESC LIMIT 8")
+    cursor.execute("SELECT * FROM products ORDER BY product_id ASC")
     products = cursor.fetchall()
 
     cursor.close()
@@ -78,7 +78,7 @@ def products():
     elif sort == "rating":
         query += " ORDER BY rating DESC"
     else:
-        query += " ORDER BY product_id DESC"
+        query += " ORDER BY product_id ASC"
 
     cursor.execute(query, tuple(params))
     items = cursor.fetchall()
@@ -118,7 +118,7 @@ def product_details(product_id):
             (product_id,),
         )
         conn.commit()
-    except Exception as e:
+    except Exception:
         conn.rollback()
 
     # Main product fetch
@@ -172,7 +172,7 @@ def product_details(product_id):
             FROM order_items oi1
             JOIN order_items oi2 ON oi1.order_id = oi2.order_id
             JOIN products p ON oi2.product_id = p.product_id
-            WHERE oi1.product_id = %s AND oi2.product_id != %s
+            WHERE oi1.product_id = %s AND oi2.product_id != %s 
             LIMIT 4
             """,
             (product_id, product_id),
@@ -297,7 +297,7 @@ def add_review(product_id):
         )
         conn.commit()
         flash("Review submitted!", "success")
-    except Exception as e:
+    except Exception:
         conn.rollback()
         flash("Could not submit review.", "danger")
     finally:
